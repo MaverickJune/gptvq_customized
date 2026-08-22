@@ -32,17 +32,30 @@ def require_cuda(device):
         )
 
 
-def load_model(model_path, device="cuda:0", disable_internal_cudagraphs=True):
-    """Load GPTQ weights with a graph-safe backend for explicit capture."""
+def load_model(
+    model_path,
+    device="cuda:0",
+    disable_internal_cudagraphs=True,
+    require_packed=False,
+):
+    """Load a dense GPTVQ accuracy checkpoint or packed GPTQ checkpoint."""
     require_cuda(device)
     config = AutoConfig.from_pretrained(model_path)
     quant = getattr(config, "quantization_config", None)
-    if quant is None:
+    if quant is None and require_packed:
         raise ValueError(
             f"{model_path!r} is not a packed quantized checkpoint. The original "
             "GPTVQ output stores dequantized dense weights and is unsuitable for latency tests."
         )
-    if disable_internal_cudagraphs:
+    if quant is None:
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            config=config,
+            device_map={"": device},
+            torch_dtype=torch.float16,
+            low_cpu_mem_usage=True,
+        )
+    elif disable_internal_cudagraphs:
         # AutoGPTQ's legacy CUDA op captures but does not replay correctly.
         # Triton is warmed up by our helper before raw CUDA graph capture.
         from auto_gptq import AutoGPTQForCausalLM
@@ -126,11 +139,12 @@ def main():
         args.model,
         device=args.device,
         disable_internal_cudagraphs=args.disable_internal_cudagraphs,
+        require_packed=args.command == "latency",
     )
     if args.command == "preflight":
         print(
             f"Loaded {args.model} on {args.device}; "
-            f"quantization={model.config.quantization_config}"
+            f"quantization={getattr(model.config, 'quantization_config', None)}"
         )
         return
     if args.command == "ppl":

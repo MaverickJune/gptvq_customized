@@ -54,6 +54,21 @@ All commands below load the same packed model and save machine-readable JSON und
 
 ### 1. WikiText-2 perplexity
 
+For the dense GPTVQ checkpoint produced by `llama.py --output-dir`, run:
+
+```bash
+python benchmark.py ppl \
+  --model /workspace/gptvq_customized/outputs/llama2_7b_gptvq4_dense \
+  --max-length 2048 \
+  --stride 512 \
+  --output results/llama2_7b_gptvq4_dense_ppl.json
+```
+
+This uses the same WikiText-2 validation split and loss calculation as
+`sbvr/paper_eval_package/ppl_benchmark.py`.
+
+For the packed GPTQ checkpoint used by the latency examples, run:
+
 ```bash
 conda activate gptvq_env
 python benchmark.py ppl \
@@ -71,9 +86,9 @@ The default task set matches the SBVR package: `commonsense_qa`, `arc_challenge`
 
 ```bash
 python benchmark.py lm_eval \
-  --model models/Llama-2-7B-GPTQ \
+  --model /workspace/gptvq_customized/outputs/llama2_7b_gptvq4_dense \
   --batch-size 1 \
-  --output results/llama2_7b_gptq4_lm_eval.json
+  --output results/llama2_7b_gptvq4_dense_lm_eval.json
 ```
 
 Use a subset by passing, for example, `--tasks piqa arc_easy`. For a pipeline-only smoke test, add `--limit 2`; do not use `--limit` for reported scores.
