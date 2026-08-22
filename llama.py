@@ -19,7 +19,7 @@ from quant import *
 from vq_quant import *
 
 
-HF_TOKEN = None  # TODO add token here
+HF_TOKEN = os.environ.get("HF_TOKEN")
 
 
 def get_llama(model, model_type):
@@ -34,7 +34,7 @@ def get_llama(model, model_type):
 
     token_auth_kwargs = {}
     if HF_TOKEN is not None:
-        token_auth_kwargs["use_auth_token"] = HF_TOKEN
+        token_auth_kwargs["token"] = HF_TOKEN
 
     if model_type == "mistral":
         from transformers import MistralForCausalLM

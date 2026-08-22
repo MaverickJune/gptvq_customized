@@ -1,8 +1,18 @@
-SentencePiece
-datasets==2.14.6
-numpy==1.24.1
-scikit_learn==1.3.0
-setuptools==45.2.0
-torch==2.0.1
-tqdm==4.66.1
-transformers==4.37.2
+# Python 3.10 / CUDA 12.x environment used by both the original GPTVQ code
+# and the SBVR-style evaluation entry point.
+accelerate==0.34.2
+auto-gptq==0.7.1
+datasets==2.20.0
+evaluate==0.4.2
+fsspec==2024.5.0
+huggingface-hub==0.24.7
+lm-eval==0.4.12
+numpy==1.26.4
+optimum==1.22.0
+protobuf==5.28.2
+scikit-learn==1.5.2
+sentencepiece==0.2.0
+# AutoGPTQ 0.7.1 CUDA wheels are compiled against this exact PyTorch ABI.
+torch==2.2.1
+tqdm==4.66.5
+transformers==4.44.2
